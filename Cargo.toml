@@ -1,0 +1,8 @@
+[package]
+name = "boom-extended"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bevy = "0.13.2"
+serde = { version = "1.0.203", features = ["derive"] }
