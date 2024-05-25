@@ -1,3 +1,3 @@
 fn main() {
-    println!("Hello, world!");
+    boom_extended::run();
 }
