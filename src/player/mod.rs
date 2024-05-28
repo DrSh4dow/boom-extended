@@ -49,7 +49,7 @@ fn setup(
     commands.spawn((
         SpriteSheetBundle {
             sprite: Sprite {
-                custom_size: Some(Vec2::new(100.0, 100.0)),
+                custom_size: Some(Vec2::new(40.0, 40.0)),
                 ..default()
             },
             texture,

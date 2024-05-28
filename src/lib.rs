@@ -12,7 +12,7 @@ pub fn run() {
                 .set(ImagePlugin::default_nearest())
                 .set(WindowPlugin {
                     primary_window: Some(Window {
-                        title: String::from("Logic Farming Rougelike"),
+                        title: String::from("BOOM - Extended"),
                         resolution: (640.0, 480.0).into(),
                         resizable: true,
                         ..default()
