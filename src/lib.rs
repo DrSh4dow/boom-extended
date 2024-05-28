@@ -1,6 +1,9 @@
 // mod splash;
+mod player;
 
-use bevy::prelude::*;
+use bevy::{input::common_conditions::input_toggle_active, prelude::*};
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use player::PlayerPlugin;
 
 // #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
 // enum GameState {
@@ -13,17 +16,6 @@ use bevy::prelude::*;
 /// It will be a resource in the app
 // #[derive(Resource, Debug, Component, PartialEq, Eq, Clone, Copy)]
 // struct Volume(u32);
-
-enum MovementAnimation {
-    Still,
-    Down,
-    Left,
-    Right,
-    Up,
-}
-
-#[derive(Component)]
-struct PlayerMovementState(MovementAnimation);
 
 /// Runs the application with the default plugins
 pub fn run() {
@@ -41,65 +33,19 @@ pub fn run() {
                     ..default()
                 }),
         )
+        .add_plugins(
+            WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
+        )
+        .add_plugins(PlayerPlugin)
+        .add_systems(Startup, setup)
         // .insert_resource(Volume(7))
         // .init_state::<GameState>()
-        .add_systems(Startup, setup)
-        .add_systems(Update, character_movement)
         // adds the plugins for each state
         // .add_plugins(splash::splash_plugin)
         .run();
 }
 
-fn setup(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
-) {
+fn setup(mut commands: Commands) {
     // spawns the camera
     commands.spawn(Camera2dBundle::default());
-
-    // main character texture handler
-    let texture = asset_server.load("graphics/player1.png");
-    let layout = TextureAtlasLayout::from_grid(Vec2::new(32., 32.), 8, 5, None, None);
-    let texture_atlas_layout = texture_atlas_layouts.add(layout);
-
-    // player1
-    commands
-        .spawn(SpriteSheetBundle {
-            sprite: Sprite {
-                custom_size: Some(Vec2::new(100.0, 100.0)),
-                ..default()
-            },
-            texture,
-            atlas: TextureAtlas {
-                layout: texture_atlas_layout,
-                index: 0,
-            },
-            ..default()
-        })
-        .insert(PlayerMovementState(MovementAnimation::Still));
-}
-
-fn character_movement(
-    mut characters: Query<(&mut Transform, &Sprite, &mut PlayerMovementState)>,
-    input: Res<ButtonInput<KeyCode>>,
-    time: Res<Time>,
-) {
-    for (mut transform, _, mut movement_state) in &mut characters {
-        if input.pressed(KeyCode::KeyW) {
-            transform.translation.y += 100.0 * time.delta_seconds();
-            movement_state.0 = MovementAnimation::Up;
-        } else if input.pressed(KeyCode::KeyS) {
-            transform.translation.y -= 100.0 * time.delta_seconds();
-            movement_state.0 = MovementAnimation::Down;
-        } else if input.pressed(KeyCode::KeyD) {
-            transform.translation.x += 100.0 * time.delta_seconds();
-            movement_state.0 = MovementAnimation::Right;
-        } else if input.pressed(KeyCode::KeyA) {
-            transform.translation.x -= 100.0 * time.delta_seconds();
-            movement_state.0 = MovementAnimation::Left;
-        } else {
-            movement_state.0 = MovementAnimation::Still;
-        }
-    }
 }
