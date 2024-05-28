@@ -13,10 +13,25 @@ enum MovementAction {
 #[derive(Component)]
 struct PlayerMovementState(MovementAction);
 
+#[derive(Component, Deref, DerefMut)]
+struct AnimationTimer(Timer);
+
+#[derive(Component)]
+struct AnimationIndices {
+    still: usize,
+    up: (usize, usize),
+    down: (usize, usize),
+    left: (usize, usize),
+    right: (usize, usize),
+}
+
+#[derive(Component)]
+struct PlayerOne;
+
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, setup)
-            .add_systems(Update, character_movement);
+            .add_systems(Update, (character_movement, character_animation));
     }
 }
 
@@ -45,16 +60,25 @@ fn setup(
             ..default()
         },
         PlayerMovementState(MovementAction::Still),
+        PlayerOne,
+        AnimationIndices {
+            still: 0,
+            down: (1, 7),
+            up: (8, 15),
+            right: (16, 23),
+            left: (24, 31),
+        },
+        AnimationTimer(Timer::from_seconds(0.09, TimerMode::Repeating)),
         Name::new("Player"),
     ));
 }
 
 fn character_movement(
-    mut characters: Query<(&mut Transform, &Sprite, &mut PlayerMovementState)>,
+    mut characters: Query<(&mut Transform, &mut PlayerMovementState)>,
     input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
-    for (mut transform, _, mut movement_state) in &mut characters {
+    for (mut transform, mut movement_state) in &mut characters {
         if input.pressed(KeyCode::KeyW) {
             transform.translation.y += 100.0 * time.delta_seconds();
             movement_state.0 = MovementAction::Up;
@@ -71,4 +95,75 @@ fn character_movement(
             movement_state.0 = MovementAction::Still;
         }
     }
+}
+
+fn character_animation(
+    mut player: Query<
+        (
+            &mut TextureAtlas,
+            &PlayerMovementState,
+            &AnimationIndices,
+            &mut AnimationTimer,
+        ),
+        With<PlayerOne>,
+    >,
+    time: Res<Time>,
+) {
+    let (mut player_texture_atlas, movement_state, animation_indices, mut animation_timer) =
+        player.single_mut();
+
+    animation_timer.tick(time.delta());
+
+    match movement_state.0 {
+        MovementAction::Still => {
+            player_texture_atlas.index = animation_indices.still;
+        }
+        MovementAction::Down => {
+            if animation_timer.just_finished() {
+                player_texture_atlas.index = if player_texture_atlas.index
+                    >= animation_indices.down.1
+                    || player_texture_atlas.index < animation_indices.down.0
+                {
+                    animation_indices.down.0
+                } else {
+                    player_texture_atlas.index + 1
+                }
+            }
+        }
+        MovementAction::Left => {
+            if animation_timer.just_finished() {
+                player_texture_atlas.index = if player_texture_atlas.index
+                    >= animation_indices.left.1
+                    || player_texture_atlas.index < animation_indices.left.0
+                {
+                    animation_indices.left.0
+                } else {
+                    player_texture_atlas.index + 1
+                }
+            }
+        }
+        MovementAction::Right => {
+            if animation_timer.just_finished() {
+                player_texture_atlas.index = if player_texture_atlas.index
+                    >= animation_indices.right.1
+                    || player_texture_atlas.index < animation_indices.right.0
+                {
+                    animation_indices.right.0
+                } else {
+                    player_texture_atlas.index + 1
+                }
+            }
+        }
+        MovementAction::Up => {
+            if animation_timer.just_finished() {
+                player_texture_atlas.index = if player_texture_atlas.index >= animation_indices.up.1
+                    || player_texture_atlas.index < animation_indices.up.0
+                {
+                    animation_indices.up.0
+                } else {
+                    player_texture_atlas.index + 1
+                }
+            }
+        }
+    };
 }
