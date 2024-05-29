@@ -44,11 +44,15 @@ fn setup(
                 layout: texture_atlas_layout,
                 index: 0,
             },
+            transform: Transform {
+                translation: Vec3::new(0.0, 0.0, 0.0),
+                ..default()
+            },
             ..default()
         },
         PlayerMovementState(MovementAction::Still),
         PlayerOne,
-        GridPosition { x: 6, y: 8 },
+        GridPosition { x: 0, y: 0 },
         RelativeGridSize(1.0),
         AnimationIndices {
             still: 0,
