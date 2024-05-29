@@ -1,12 +1,14 @@
 mod common;
 mod grid;
 mod player;
+mod sounds;
 mod ui;
 
 use bevy::{input::common_conditions::input_toggle_active, prelude::*, window::PrimaryWindow};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use grid::GridPlugin;
 use player::PlayerPlugin;
+use sounds::SoundsPlugin;
 use ui::GameUi;
 
 /// Runs the application with the default plugins
@@ -28,7 +30,7 @@ pub fn run() {
         .add_plugins(
             WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
         )
-        .add_plugins((GameUi, PlayerPlugin, GridPlugin))
+        .add_plugins((GameUi, PlayerPlugin, GridPlugin, SoundsPlugin))
         .add_systems(Startup, setup)
         .run();
 }
