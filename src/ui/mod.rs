@@ -2,7 +2,7 @@ use bevy::{prelude::*, sprite::Anchor};
 
 use crate::common::{
     components::{GridPosition, RelativeGridSize},
-    constants::GRID_HEIGHT,
+    constants::{GRID_HEIGHT, GRID_WIDTH},
 };
 
 pub struct GameUi;
@@ -16,9 +16,11 @@ impl Plugin for GameUi {
     }
 }
 
-fn spawn_game_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let panel_handler = asset_server.load("graphics/panel.png");
+#[derive(Component)]
+struct ArenaGridBg;
 
+fn spawn_game_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
+    // panel
     commands.spawn((
         SpriteBundle {
             sprite: Sprite {
@@ -26,7 +28,7 @@ fn spawn_game_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                 anchor: Anchor::TopLeft,
                 ..default()
             },
-            texture: panel_handler,
+            texture: asset_server.load("graphics/panel.png"),
             ..default()
         },
         Panel,
@@ -39,4 +41,52 @@ fn spawn_game_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
             y: GRID_HEIGHT,
         },
     ));
+
+    // arena border
+    commands.spawn((
+        SpriteBundle {
+            sprite: Sprite {
+                custom_size: Some(Vec2::new(
+                    32.0 * GRID_WIDTH as f32 - 3.,
+                    32.0 * GRID_HEIGHT as f32,
+                )),
+                anchor: Anchor::TopLeft,
+                ..default()
+            },
+            texture: asset_server.load("graphics/border1.png"),
+            ..default()
+        },
+        RelativeGridSize {
+            width: GRID_WIDTH - 3,
+            height: GRID_HEIGHT,
+        },
+        GridPosition {
+            x: 3,
+            y: GRID_HEIGHT,
+        },
+    ));
+
+    for y in 0..GRID_HEIGHT - 2 {
+        for x in 0..GRID_WIDTH - 5 {
+            // arena ground
+            commands.spawn((
+                SpriteBundle {
+                    sprite: Sprite {
+                        custom_size: Some(Vec2::new(32.0, 32.0)),
+                        anchor: Anchor::TopLeft,
+                        ..default()
+                    },
+                    texture: asset_server.load("graphics/bg1.png"),
+                    transform: Transform::from_xyz(0., 0., -1.),
+                    ..default()
+                },
+                RelativeGridSize {
+                    width: 1,
+                    height: 1,
+                },
+                GridPosition { x: 4 + x, y: 2 + y },
+                ArenaGridBg,
+            ));
+        }
+    }
 }

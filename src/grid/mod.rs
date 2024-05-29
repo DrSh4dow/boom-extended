@@ -50,7 +50,7 @@ fn position_translation(
                 GRID_HEIGHT as f32,
                 sprite.anchor,
             ),
-            0.0,
+            transform.translation.z,
         );
     }
 }
