@@ -1,7 +1,11 @@
+mod common;
+mod grid;
 mod player;
+mod ui;
 
-use bevy::{input::common_conditions::input_toggle_active, prelude::*};
+use bevy::{input::common_conditions::input_toggle_active, prelude::*, window::PrimaryWindow};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use grid::GridPlugin;
 use player::PlayerPlugin;
 
 /// Runs the application with the default plugins
@@ -14,7 +18,7 @@ pub fn run() {
                     primary_window: Some(Window {
                         title: String::from("BOOM - Extended"),
                         resolution: (640.0, 480.0).into(),
-                        resizable: true,
+                        resizable: false,
                         ..default()
                     }),
                     ..default()
@@ -23,12 +27,21 @@ pub fn run() {
         .add_plugins(
             WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
         )
-        .add_plugins(PlayerPlugin)
+        .add_plugins((PlayerPlugin, GridPlugin))
         .add_systems(Startup, setup)
         .run();
 }
 
-fn setup(mut commands: Commands) {
+fn setup(mut commands: Commands, window: Query<&Window, With<PrimaryWindow>>) {
+    let window = window.single();
+
     // spawns the camera
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2dBundle {
+        transform: Transform::from_xyz(
+            window.physical_width() as f32 / 2.,
+            window.physical_height() as f32 / 2.,
+            0.,
+        ),
+        ..default()
+    });
 }

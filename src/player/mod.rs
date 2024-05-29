@@ -1,37 +1,24 @@
+mod character_animation;
+mod player_components;
+
 use bevy::prelude::*;
+
+use crate::common::components::{GridPosition, RelativeGridSize};
+
+use self::player_components::{
+    AnimationIndices, AnimationTimer, MovementAction, PlayerMovementState, PlayerOne,
+};
 
 pub struct PlayerPlugin;
 
-enum MovementAction {
-    Still,
-    Down,
-    Left,
-    Right,
-    Up,
-}
-
-#[derive(Component)]
-struct PlayerMovementState(MovementAction);
-
-#[derive(Component, Deref, DerefMut)]
-struct AnimationTimer(Timer);
-
-#[derive(Component)]
-struct AnimationIndices {
-    still: usize,
-    up: (usize, usize),
-    down: (usize, usize),
-    left: (usize, usize),
-    right: (usize, usize),
-}
-
-#[derive(Component)]
-struct PlayerOne;
+const BASE_SPEED: f32 = 140.0;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup)
-            .add_systems(Update, (character_movement, character_animation));
+        app.add_systems(Startup, setup).add_systems(
+            Update,
+            (character_movement, character_animation::character_animation),
+        );
     }
 }
 
@@ -49,7 +36,7 @@ fn setup(
     commands.spawn((
         SpriteSheetBundle {
             sprite: Sprite {
-                custom_size: Some(Vec2::new(40.0, 40.0)),
+                custom_size: Some(Vec2::new(32.0, 32.0)),
                 ..default()
             },
             texture,
@@ -61,6 +48,8 @@ fn setup(
         },
         PlayerMovementState(MovementAction::Still),
         PlayerOne,
+        GridPosition { x: 6, y: 8 },
+        RelativeGridSize(1.0),
         AnimationIndices {
             still: 0,
             down: (1, 7),
@@ -80,90 +69,19 @@ fn character_movement(
 ) {
     for (mut transform, mut movement_state) in &mut characters {
         if input.pressed(KeyCode::KeyW) {
-            transform.translation.y += 100.0 * time.delta_seconds();
+            transform.translation.y += BASE_SPEED * time.delta_seconds();
             movement_state.0 = MovementAction::Up;
         } else if input.pressed(KeyCode::KeyS) {
-            transform.translation.y -= 100.0 * time.delta_seconds();
+            transform.translation.y -= BASE_SPEED * time.delta_seconds();
             movement_state.0 = MovementAction::Down;
         } else if input.pressed(KeyCode::KeyD) {
-            transform.translation.x += 100.0 * time.delta_seconds();
+            transform.translation.x += BASE_SPEED * time.delta_seconds();
             movement_state.0 = MovementAction::Right;
         } else if input.pressed(KeyCode::KeyA) {
-            transform.translation.x -= 100.0 * time.delta_seconds();
+            transform.translation.x -= BASE_SPEED * time.delta_seconds();
             movement_state.0 = MovementAction::Left;
         } else {
             movement_state.0 = MovementAction::Still;
         }
     }
-}
-
-fn character_animation(
-    mut player: Query<
-        (
-            &mut TextureAtlas,
-            &PlayerMovementState,
-            &AnimationIndices,
-            &mut AnimationTimer,
-        ),
-        With<PlayerOne>,
-    >,
-    time: Res<Time>,
-) {
-    let (mut player_texture_atlas, movement_state, animation_indices, mut animation_timer) =
-        player.single_mut();
-
-    animation_timer.tick(time.delta());
-
-    match movement_state.0 {
-        MovementAction::Still => {
-            player_texture_atlas.index = animation_indices.still;
-        }
-        MovementAction::Down => {
-            if animation_timer.just_finished() {
-                player_texture_atlas.index = if player_texture_atlas.index
-                    >= animation_indices.down.1
-                    || player_texture_atlas.index < animation_indices.down.0
-                {
-                    animation_indices.down.0
-                } else {
-                    player_texture_atlas.index + 1
-                }
-            }
-        }
-        MovementAction::Left => {
-            if animation_timer.just_finished() {
-                player_texture_atlas.index = if player_texture_atlas.index
-                    >= animation_indices.left.1
-                    || player_texture_atlas.index < animation_indices.left.0
-                {
-                    animation_indices.left.0
-                } else {
-                    player_texture_atlas.index + 1
-                }
-            }
-        }
-        MovementAction::Right => {
-            if animation_timer.just_finished() {
-                player_texture_atlas.index = if player_texture_atlas.index
-                    >= animation_indices.right.1
-                    || player_texture_atlas.index < animation_indices.right.0
-                {
-                    animation_indices.right.0
-                } else {
-                    player_texture_atlas.index + 1
-                }
-            }
-        }
-        MovementAction::Up => {
-            if animation_timer.just_finished() {
-                player_texture_atlas.index = if player_texture_atlas.index >= animation_indices.up.1
-                    || player_texture_atlas.index < animation_indices.up.0
-                {
-                    animation_indices.up.0
-                } else {
-                    player_texture_atlas.index + 1
-                }
-            }
-        }
-    };
 }
