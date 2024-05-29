@@ -1,6 +1,14 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::Anchor};
+
+use crate::common::{
+    components::{GridPosition, RelativeGridSize},
+    constants::GRID_HEIGHT,
+};
 
 pub struct GameUi;
+
+#[derive(Component)]
+struct Panel;
 
 impl Plugin for GameUi {
     fn build(&self, app: &mut App) {
@@ -8,46 +16,27 @@ impl Plugin for GameUi {
     }
 }
 
-#[derive(Component)]
-pub struct ArenaLayout;
+fn spawn_game_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let panel_handler = asset_server.load("graphics/panel.png");
 
-#[derive(Component)]
-pub struct Hud;
-
-fn spawn_game_ui(mut commands: Commands) {
-    commands
-        .spawn((
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                    display: Display::Grid,
-                    grid_template_columns: vec![GridTrack::percent(15.0), GridTrack::fr(1.0)],
-                    ..default()
-                },
-                transform: Transform::from_xyz(0.0, 0.0, -1.0),
+    commands.spawn((
+        SpriteBundle {
+            sprite: Sprite {
+                custom_size: Some(Vec2::new(32.0 * 3., 32.0 * GRID_HEIGHT as f32)),
+                anchor: Anchor::TopLeft,
                 ..default()
             },
-            Name::new("UI Root"),
-        ))
-        .with_children(|commands| {
-            commands.spawn((
-                NodeBundle {
-                    background_color: Color::BLUE.into(),
-                    ..default()
-                },
-                Hud,
-            ));
-            commands.spawn((
-                NodeBundle {
-                    style: Style {
-                        border: UiRect::all(Val::Px(32.)),
-                        ..default()
-                    },
-                    border_color: Color::RED.into(),
-                    ..default()
-                },
-                ArenaLayout,
-            ));
-        });
+            texture: panel_handler,
+            ..default()
+        },
+        Panel,
+        RelativeGridSize {
+            width: 3,
+            height: GRID_HEIGHT,
+        },
+        GridPosition {
+            x: 0,
+            y: GRID_HEIGHT,
+        },
+    ));
 }

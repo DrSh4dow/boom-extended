@@ -1,2 +1,2 @@
-pub const ARENA_WIDTH: u32 = 15;
-pub const ARENA_HEIGHT: u32 = 13;
+pub const GRID_WIDTH: u32 = 20;
+pub const GRID_HEIGHT: u32 = 15;

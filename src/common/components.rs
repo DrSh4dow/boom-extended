@@ -7,4 +7,7 @@ pub struct GridPosition {
 }
 
 #[derive(Component, Debug)]
-pub struct RelativeGridSize(pub f32);
+pub struct RelativeGridSize {
+    pub width: u32,
+    pub height: u32,
+}

@@ -3,7 +3,10 @@ mod player_components;
 
 use bevy::prelude::*;
 
-use crate::common::components::{GridPosition, RelativeGridSize};
+use crate::common::{
+    components::{GridPosition, RelativeGridSize},
+    constants::GRID_HEIGHT,
+};
 
 use self::player_components::{
     AnimationIndices, AnimationTimer, MovementAction, PlayerMovementState, PlayerOne,
@@ -44,16 +47,18 @@ fn setup(
                 layout: texture_atlas_layout,
                 index: 0,
             },
-            transform: Transform {
-                translation: Vec3::new(0.0, 0.0, 0.0),
-                ..default()
-            },
             ..default()
         },
         PlayerMovementState(MovementAction::Still),
         PlayerOne,
-        GridPosition { x: 0, y: 0 },
-        RelativeGridSize(1.0),
+        GridPosition {
+            x: 4,
+            y: GRID_HEIGHT - 2,
+        },
+        RelativeGridSize {
+            width: 1,
+            height: 1,
+        },
         AnimationIndices {
             still: 0,
             down: (1, 7),

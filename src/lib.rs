@@ -7,6 +7,7 @@ use bevy::{input::common_conditions::input_toggle_active, prelude::*, window::Pr
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use grid::GridPlugin;
 use player::PlayerPlugin;
+use ui::GameUi;
 
 /// Runs the application with the default plugins
 pub fn run() {
@@ -27,7 +28,7 @@ pub fn run() {
         .add_plugins(
             WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
         )
-        .add_plugins((PlayerPlugin, GridPlugin))
+        .add_plugins((GameUi, PlayerPlugin, GridPlugin))
         .add_systems(Startup, setup)
         .run();
 }
@@ -37,6 +38,10 @@ fn setup(mut commands: Commands, window: Query<&Window, With<PrimaryWindow>>) {
 
     // spawns the camera
     commands.spawn(Camera2dBundle {
+        camera: Camera {
+            clear_color: Color::BLACK.into(),
+            ..default()
+        },
         transform: Transform::from_xyz(
             window.physical_width() as f32 / 2.,
             window.physical_height() as f32 / 2.,
