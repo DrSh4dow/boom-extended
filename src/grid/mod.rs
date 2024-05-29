@@ -30,6 +30,18 @@ fn rescale_sizes(
     }
 }
 
+/// Translates the position of entities in the grid.
+///
+/// This function iterates over all entities that have a `GridPosition`, `Transform`, and `Sprite` component.
+/// For each entity, it translates the entity's position in the grid to a position in the window.
+/// The translation is done by converting the grid position (x, y) to window coordinates.
+///
+/// # Parameters
+/// * `q`: A query that selects entities with a `GridPosition`, `Transform`, and `Sprite` component.
+/// * `window`: A query that selects the primary window.
+///
+/// # Panics
+/// This function will panic if it cannot find a primary window.
 fn position_translation(
     mut q: Query<(&GridPosition, &mut Transform, &Sprite)>,
     window: Query<&Window, With<PrimaryWindow>>,

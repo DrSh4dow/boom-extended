@@ -11,7 +11,13 @@ use player::PlayerPlugin;
 use sounds::SoundsPlugin;
 use ui::GameUi;
 
-/// Runs the application with the default plugins
+/// Runs the game application.
+///
+/// This function initializes a new Bevy application and adds various plugins and systems to it.
+/// It sets up the default plugins with custom settings, including a custom window title, resolution, and image plugin.
+/// It also adds a world inspector plugin that can be toggled with the Escape key.
+/// Additionally, it adds the game-specific plugins: `GameUi`, `PlayerPlugin`, `GridPlugin`, and `SoundsPlugin`.
+/// Finally, it adds a setup system that runs at startup, and then runs the application.
 pub fn run() {
     App::new()
         .add_plugins(
@@ -35,6 +41,15 @@ pub fn run() {
         .run();
 }
 
+/// Sets up the game window and spawns a 2D camera.
+///
+/// This function takes in a mutable `Commands` struct and a `Query` for the primary window.
+/// It first retrieves the primary window from the query.
+/// Then it spawns a 2D camera with a black clear color and a transform that centers the camera in the window.
+///
+/// # Parameters
+/// - `commands`: A mutable `Commands` struct which is used to spawn resources and entities.
+/// - `window`: A `Query` for the primary window.
 fn setup(mut commands: Commands, window: Query<&Window, With<PrimaryWindow>>) {
     let window = window.single();
 
