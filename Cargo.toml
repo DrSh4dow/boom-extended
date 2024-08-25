@@ -12,6 +12,6 @@ opt-level = 1
 opt-level = 3
 
 [dependencies]
-bevy = { version = "0.13.2", features = ["dynamic_linking"] }
-bevy-inspector-egui = "0.24.0"
+bevy = { version = "0.14", features = ["dynamic_linking"] }
+bevy-inspector-egui = "0.25"
 serde = { version = "1.0.203", features = ["derive"] }

@@ -31,23 +31,23 @@ fn setup(
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
+    let layout = TextureAtlasLayout::from_grid(UVec2::new(32, 32), 8, 5, None, None);
     let texture = asset_server.load("graphics/player1.png");
-    let layout = TextureAtlasLayout::from_grid(Vec2::new(32., 32.), 8, 5, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
 
     // player1
     commands.spawn((
-        SpriteSheetBundle {
+        SpriteBundle {
             sprite: Sprite {
                 custom_size: Some(Vec2::new(32.0, 32.0)),
                 ..default()
             },
             texture,
-            atlas: TextureAtlas {
-                layout: texture_atlas_layout,
-                index: 0,
-            },
             ..default()
+        },
+        TextureAtlas {
+            layout: texture_atlas_layout,
+            index: 0,
         },
         PlayerMovementState(MovementAction::Still),
         PlayerOne,
